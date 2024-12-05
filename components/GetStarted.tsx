@@ -1,14 +1,10 @@
-import { View, Text, ImageBackground } from "react-native";
+import { View, Text, ImageBackground, Animated } from "react-native";
 import React, { useEffect, useRef } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { CustomButton } from "../components";
 import { router } from "expo-router";
-import Animated, {
-  Easing,
-  withTiming,
-  withSequence,
-} from "react-native-reanimated";
-import { useSharedValue, withDelay } from "react-native-reanimated";
+import { Easing } from "react-native-reanimated";
+import { StatusBar } from "expo-status-bar";
 
 const GetStarted = () => {
   const NavigateToHome = () => {
@@ -16,31 +12,51 @@ const GetStarted = () => {
     router.navigate("/(tabs)");
   };
 
-  // Animation references using shared values
-  const imageAnim = useSharedValue(0);
-  const gradientAnim = useSharedValue(0);
-  const titleAnim = useSharedValue(0);
-  const subtitleAnim = useSharedValue(0);
-  const buttonAnim = useSharedValue(0);
+  // Animation references
+  const imageAnim = useRef(new Animated.Value(0)).current;
+  const gradientAnim = useRef(new Animated.Value(0)).current;
+  const titleAnim = useRef(new Animated.Value(0)).current;
+  const subtitleAnim = useRef(new Animated.Value(0)).current;
+  const buttonAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     // Start the animations when the screen loads
-    imageAnim.value = withTiming(1, { duration: 1500, easing: Easing.ease });
-    gradientAnim.value = withTiming(1, { duration: 1500, easing: Easing.ease });
-    titleAnim.value = withDelay(
-      200,
-      withTiming(1, { duration: 1500, easing: Easing.ease })
-    );
-    subtitleAnim.value = withDelay(
-      400,
-      withTiming(1, { duration: 1500, easing: Easing.ease })
-    );
-    buttonAnim.value = withDelay(
-      600,
-      withTiming(1, { duration: 1500, easing: Easing.ease })
-    );
+    Animated.sequence([
+      Animated.timing(imageAnim, {
+        toValue: 1,
+        duration: 1300,
+        easing: Easing.ease,
+        useNativeDriver: true,
+      }),
+      Animated.timing(gradientAnim, {
+        toValue: 1,
+        duration: 1300,
+        easing: Easing.ease,
+        useNativeDriver: true,
+      }),
+      Animated.timing(titleAnim, {
+        toValue: 1,
+        duration: 1300,
+        delay: 100,
+        easing: Easing.ease,
+        useNativeDriver: true,
+      }),
+      Animated.timing(subtitleAnim, {
+        toValue: 1,
+        duration: 1300,
+        delay: 200,
+        easing: Easing.ease,
+        useNativeDriver: true,
+      }),
+      Animated.timing(buttonAnim, {
+        toValue: 1,
+        duration: 1300,
+        delay: 300,
+        easing: Easing.ease,
+        useNativeDriver: true,
+      }),
+    ]).start();
   }, []);
-
   return (
     <ImageBackground
       className="flex w-full h-full"
@@ -60,16 +76,16 @@ const GetStarted = () => {
           end={{ x: 0, y: 0.7 }}
         >
           {/* view to push the items to the bottom */}
-          <View className="h-[65%]" />
+          <View className="h-[66%]" />
           <View className="text-  items-center">
             <Animated.Text
               style={{
                 opacity: titleAnim,
                 transform: [
                   {
-                    translateY: withTiming(titleAnim.value * 50, {
-                      duration: 1500,
-                      easing: Easing.ease,
+                    translateY: titleAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [50, 0], // Slide from bottom to top
                     }),
                   },
                 ],
@@ -80,12 +96,12 @@ const GetStarted = () => {
             </Animated.Text>
             <Animated.Text
               style={{
-                opacity: subtitleAnim,
+                opacity: titleAnim,
                 transform: [
                   {
-                    translateY: withTiming(subtitleAnim.value * 50, {
-                      duration: 1500,
-                      easing: Easing.ease,
+                    translateY: subtitleAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [50, 0], // Slide from bottom to top
                     }),
                   },
                 ],
@@ -102,9 +118,9 @@ const GetStarted = () => {
                 opacity: buttonAnim,
                 transform: [
                   {
-                    translateY: withTiming(buttonAnim.value * 50, {
-                      duration: 1500,
-                      easing: Easing.ease,
+                    translateY: buttonAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [50, 0], // Slide from bottom to top
                     }),
                   },
                 ],
@@ -116,6 +132,7 @@ const GetStarted = () => {
           </View>
         </LinearGradient>
       </Animated.View>
+      <StatusBar backgroundColor="transparent" />
     </ImageBackground>
   );
 };
