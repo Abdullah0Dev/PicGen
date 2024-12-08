@@ -5,7 +5,6 @@ import { Platform } from "react-native";
 import { HapticTab } from "@/components/HapticTab";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import TabBarBackground from "@/components/ui/TabBarBackground";
-import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 
 export default function TabLayout() {
@@ -14,16 +13,21 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+        tabBarActiveTintColor: "#ff7e5f",
+        tabBarInactiveTintColor: "#feb47b",
+
         headerShown: false,
         tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
+        tabBarBackground: () => <TabBarBackground />,
+
         tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
+          default: {
+            borderTopColor: "transparent",
+            borderTopWidth: 0,
             position: "absolute",
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
           },
-          default: {},
         }),
       }}
     >
@@ -34,15 +38,17 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name="house.fill" color={color} />
           ),
+          // tabBarShowLabel: false, // Hide label when inactive
         }}
       />
       <Tabs.Screen
         name="explore"
         options={{
-          title: "Explore",
+          title: "Setting",
           tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name="paperplane.fill" color={color} />
           ),
+          // tabBarShowLabel: false, // Hide label when inactive
         }}
       />
     </Tabs>

@@ -4,12 +4,16 @@ import { BlurView } from "expo-blur";
 
 const TabBarBackground = () => {
   return (
-    <View style={StyleSheet.absoluteFillObject}>
-      <BlurView
-        intensity={50} // Adjust the blur intensity as needed
-        style={StyleSheet.absoluteFillObject}
-      />
-    </View>
+    <BlurView
+      intensity={150} // Adjust the blur intensity as needed
+      style={{
+        ...StyleSheet.absoluteFillObject,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        overflow: "hidden",
+        backgroundColor: "transparent",
+      }}
+    />
   );
 };
 

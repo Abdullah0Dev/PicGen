@@ -23,6 +23,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { StatusBar } from "expo-status-bar";
+import { router } from "expo-router";
 const HomeScreen = () => {
   const [text, setText] = useState("");
   const [textLength, setTextLength] = useState(0);
@@ -90,31 +91,32 @@ const HomeScreen = () => {
   // handleGenerate
   const handleGenerate = async () => {
     // create a request to the backend...
-    try {
-      const response = await fetch("http://10.0.2.2:4000/api/generate/", {
-        // replace it with 10.0.2.2
-        method: "POST",
-        headers: {
-          // it doesn't giving good results because the headers..
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          prompt: text,
-          width: size.width,
-          height: size.height,
-        }),
-      });
-      if (!response.ok) {
-        console.log("Error fetching DATA", response.status);
-      }
-      // if it's ok proceed, and set the data to response...
-      const data = await response.json();
-      console.log("Image generated: ", data);
-      //   navigation.navigate("ImageDetails", { image: data[0], title: text }); // will handle it later....
-    } catch (error) {
-      console.log("Error fetching data from the backend: ", error);
-    }
+    router.navigate("/generated-img");
+    // try {
+    //   const response = await fetch("http://10.0.2.2:4000/api/generate/", {
+    //     // replace it with 10.0.2.2
+    //     method: "POST",
+    //     headers: {
+    //       // it doesn't giving good results because the headers..
+    //       "Content-Type": "application/json",
+    //       Accept: "application/json",
+    //     },
+    //     body: JSON.stringify({
+    //       prompt: text,
+    //       width: size.width,
+    //       height: size.height,
+    //     }),
+    //   });
+    //   if (!response.ok) {
+    //     console.log("Error fetching DATA", response.status);
+    //   }
+    //   // if it's ok proceed, and set the data to response...
+    //   const data = await response.json();
+    //   console.log("Image generated: ", data);
+    //   //   navigation.navigate("ImageDetails", { image: data[0], title: text }); // will handle it later....
+    // } catch (error) {
+    //   console.log("Error fetching data from the backend: ", error);
+    // }
   };
   return (
     <ScrollView
@@ -275,7 +277,7 @@ const HomeScreen = () => {
         </View>
       </View>
       {/* generate btn */}
-      <View className=" pb-14">
+      <View className=" pb-24">
         <CustomButton onPress={handleGenerate} title="Generate" />
       </View>
       <StatusBar style="dark" />
