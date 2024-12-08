@@ -1,109 +1,140 @@
-import { View, Text } from "react-native";
-import React from "react";
-import { Image, ActivityIndicator, Pressable, StyleSheet } from "react-native";
-import * as ContextMenu from "zeego/context-menu";
-import Colors from "@/constants/Colors";
-import {
-  copyImageToClipboard,
-  downloadAndSaveImage,
-  shareImage,
-} from "@/utils/Image";
-import { Message, Role } from "@/utils/Interfaces";
-import { Link } from "expo-router";
-const GeneratedImage = ({
-  content,
-  role,
-  imageUrl,
-  prompt,
-  loading,
-}: Message & { loading?: boolean }) => {
-  const contextItems = [
+import { View, Text, Image, Pressable, TouchableOpacity } from "react-native";
+import React, { useEffect, useState } from "react";
+import { CustomButton } from "@/components";
+import Animated from "react-native-reanimated";
+import { FontAwesome6, Fontisto, MaterialIcons } from "@expo/vector-icons";
+import * as FileSystem from "expo-file-system";
+import * as MediaLibrary from "expo-media-library";
+import Toast from "react-native-toast-message";
+import * as Sharing from "expo-sharing"; // Import the library
+import { Asset } from "expo-asset";
+import { router } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+const GeneratedImage = () => {
+  const [downloadedImageSuccessfully, setDownloadedImageSuccessfully] =
+    useState(false);
+  const [imageUri, setImageUri] = useState<string | null>("");
+  const handlePress = async () => {
+    console.log("brh");
+  };
+
+  // load image
+  useEffect(() => {
+    const loadAsset = async () => {
+      const asset = Asset.fromModule(
+        require("@/assets/images/getstarted_img.png")
+      );
+      await asset.downloadAsync();
+      setImageUri(asset.localUri);
+    };
+    loadAsset();
+  }, []);
+
+  const saveImage = async (uri: string) => {
+    try {
+      const hasPermission = await MediaLibrary.requestPermissionsAsync();
+      if (!hasPermission) {
+        Toast.show({
+          type: "error",
+          text1: "Permission Denied",
+          text2: "You need to grant storage permissions to save the image.",
+        });
+        return;
+      }
+
+      const fileUri = `${FileSystem.documentDirectory}downloadedImage.jpg`;
+      const { uri: localUri } = await FileSystem.downloadAsync(uri, fileUri);
+
+      await MediaLibrary.saveToLibraryAsync(localUri);
+      console.log("Image successfully saved");
+      // Show success toast
+      Toast.show({
+        type: "success",
+        text1: "Success!",
+        text2: "Image downloaded successfully 🎉",
+      });
+      setDownloadedImageSuccessfully(true);
+    } catch (error) {
+      console.log("Error saving image:", error);
+      Toast.show({
+        type: "error",
+        text1: "Download Failed",
+        text2: "There was an error saving the image.",
+      });
+    }
+  };
+  const shareImage = async () => {
+    try {
+      if (imageUri) {
+        await Sharing.shareAsync(imageUri);
+      }
+    } catch (error) {
+      console.log("not working");
+    }
+  };
+  const deleteImage = async () => {
+    router.back();
+  };
+
+  const handleTools = [
     {
-      title: "Copy",
-      systemIcon: "doc.on.doc",
-      action: () => copyImageToClipboard(imageUrl!),
+      icon: "trash",
+      handlePress: deleteImage,
     },
     {
-      title: "Save to Photos",
-      systemIcon: "arrow.down.to.line",
-      action: () => downloadAndSaveImage(imageUrl!),
-    },
-    {
-      title: "Share",
-      systemIcon: "square.and.arrow.up",
-      action: () => shareImage(imageUrl!),
+      icon: "share",
+      handlePress: shareImage,
     },
   ];
   return (
     <>
-      {/* <ContextMenu.Root>
-        <ContextMenu.Trigger>
-          <Pressable>
-            <Image
-              source={{
-                uri: "https://cdn.pixabay.com/photo/2023/04/13/17/49/dare-7923106_640.jpg",
-              }}
-              className="w-full h-[55vh] rounded-b -xl"
-            />
-          </Pressable>
-        </ContextMenu.Trigger>
-        <ContextMenu.Content
-          // loop, alignOffset, avoidCollisions, collisionPadding
-          loop={false}
-          alignOffset={"0"}
-          avoidCollisions={false}
-          collisionPadding={""}
-        >
-          {contextItems.map((item, index) => (
-            <ContextMenu.Item key={item.title} onSelect={item.action}>
-              <ContextMenu.ItemTitle>{item.title}</ContextMenu.ItemTitle>
-            </ContextMenu.Item>
-          ))}
-        </ContextMenu.Content>
-      </ContextMenu.Root>  */}
-      <Text>GeneratedImage</Text>
+      <Image
+        source={require("@/assets/images/getstarted_img.png")}
+        className="w-full h-[55vh]"
+      />
+      <TouchableOpacity
+        onPress={() => router.back()}
+        className="absolute top-9 left-6 bg-black/20 p-3 rounded-full blur"
+      >
+        <MaterialIcons name={"arrow-back-ios-new"} size={18} color="white" />
+      </TouchableOpacity>
+      <Animated.View className={"w-full flex items-center"}>
+        <CustomButton
+          title="Download"
+          onPress={() =>
+            saveImage(
+              "https://letsenhance.io/static/8f5e523ee6b2479e26ecc91b9c25261e/1015f/MainAfter.jpg"
+            )
+          }
+        />
+      </Animated.View>
+      <View className="h-fit mx-5 py-4 mt-5 shadow bg-white rounded-xl">
+        {/* will change it later to the prompt that you've entered */}
+        <Text className="text-black px-3 text-lg font-semibold">
+          It's time to work and generate your own image yeah you're right
+        </Text>
+      </View>
+      {/* controllers */}
+      <View className="flex flex-row justify-center gap-x-5 mt-5 items-center">
+        {handleTools.map((item, index) => (
+          <TouchableOpacity
+            onPress={item.handlePress}
+            key={index}
+            className={`py-4 w-[40%] flex items-center justify-center rounded-xl ${
+              index === 1 ? "bg-[#ff7e5f]" : "bg-[#feb47b]"
+            } shadow`}
+          >
+            <Fontisto name={item.icon} size={24} color="white" />
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {/* Toast Notification */}
+      <Toast />
+      {/* status bar */}
+      <StatusBar style="inverted" />
     </>
   );
 };
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    paddingHorizontal: 14,
-    gap: 14,
-    marginVertical: 12,
-  },
-  item: {
-    borderRadius: 15,
-    overflow: "hidden",
-  },
-  btnImage: {
-    margin: 6,
-    width: 16,
-    height: 16,
-  },
-  avatar: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: "#000",
-  },
-  text: {
-    padding: 4,
-    fontSize: 16,
-    flexWrap: "wrap",
-    flex: 1,
-  },
-  previewImage: {
-    width: 240,
-    height: 240,
-    borderRadius: 10,
-  },
-  loading: {
-    justifyContent: "center",
-    height: 26,
-    marginLeft: 14,
-  },
-});
 
 export default GeneratedImage;
